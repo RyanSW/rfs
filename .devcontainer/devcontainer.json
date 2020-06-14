@@ -1,0 +1,13 @@
+{
+  "name": "EmbeddedArchiveDev",
+  "dockerFile": "Dockerfile",
+  "extensions": [
+    "ms-vscode.cpptools",
+    "ms-vscode.cmake-tools",
+    "slevesque.vscode-hexdump"
+  ],
+  "settings": {
+    "C_Cpp.clang_format_style": "Chromium",
+    "cmake.cmakePath": "/usr/bin/cmake/bin/cmake"
+  }
+}
