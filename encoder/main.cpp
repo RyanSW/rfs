@@ -13,7 +13,7 @@
 const char Error_NoFolder[] = "Error, please provide a valid folder";
 const char Error_NoFile[] = "Error, please provide an output file";
 
-typedef std::pair<struct Entry*, int> EntryP;
+typedef std::pair<struct RFS::Entry*, int> EntryP;
 namespace fs = std::filesystem;
 
 EntryP get_entry(fs::path file_path) {
@@ -40,9 +40,9 @@ EntryP get_entry(fs::path file_path) {
     }
   }
 
-  int total_size = sizeof(struct Entry) +
-                   sizeof(struct NameEntry) * (dirs + files) + dlen + flen +
-                   sizes;
+  int total_size = sizeof(struct RFS::Entry) +
+                   sizeof(struct RFS::NameEntry) * (dirs + files) + dlen +
+                   flen + sizes;
 
   int adjust = (4 - (total_size % 4)) % 4;  // Allign entry to 4 bytes
   total_size += adjust;
@@ -53,15 +53,16 @@ EntryP get_entry(fs::path file_path) {
     total_size += entry.second;
   }
 
-  struct Entry* this_entry = (struct Entry*)::operator new(total_size);
+  struct RFS::Entry* this_entry =
+      (struct RFS::Entry*)::operator new(total_size);
   this_entry->dirs = dirs;
   this_entry->dlen = dlen;
   this_entry->files = files;
   this_entry->flen = flen;
 
   int name_i = 0;
-  char* name_ptr = (char*)((uint8_t*)this_entry + sizeof(struct Entry) +
-                           sizeof(struct NameEntry) * (dirs + files));
+  char* name_ptr = (char*)((uint8_t*)this_entry + sizeof(struct RFS::Entry) +
+                           sizeof(struct RFS::NameEntry) * (dirs + files));
 
   char* file_ptr = (char*)((uint8_t*)name_ptr + dlen + flen);
 

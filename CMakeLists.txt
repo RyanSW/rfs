@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(RFS)
 
-add_library(RFS STATIC shared/rfs.c)
+add_library(RFS STATIC rfs/rfs.c)
 
 project(Encoder)
 add_executable(Encoder encoder/main.cpp)
@@ -25,4 +25,4 @@ add_custom_command(
 add_executable(Browser browser/main.cpp entries.o)
 target_link_libraries(Browser RFS)
 
-include_directories(shared)
+include_directories(rfs)

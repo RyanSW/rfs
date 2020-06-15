@@ -7,12 +7,28 @@
 
 #include "rfs.h"
 
-extern struct Entry _binary_entries_start;
-struct Entry* root = &_binary_entries_start;
+extern RFS::Entry _binary_entries_start;
+RFS::Entry* root = &_binary_entries_start;
+
+void print_tree(RFS::Entry* entry, int depth = 0) {
+  for (int i = 0; i < entry->files; i++) {
+    std::cout << std::string(depth, ' ') << "- ";
+    RFS::FileName file = RFS::get_file_info(entry, i);
+    std::cout << std::string(file.name, file.size) << std::endl;
+  }
+  for (int i = 0; i < entry->dirs; i++) {
+    std::cout << std::string(depth, ' ') << "+ ";
+    RFS::Folder folder = RFS::get_folder_info(entry, i);
+    std::cout << std::string(folder.name.name, folder.name.size) << std::endl;
+    print_tree(folder.entry, depth + 1);
+  }
+}
 
 int main() {
   std::cout << "Interactive browser testing. Type \"quit\" to exit."
             << std::endl;
+
+  print_tree(root);
 
   while (true) {
     std::string path;
@@ -21,22 +37,11 @@ int main() {
     if (path == "quit")
       return 0;
 
-    std::istringstream iss(path);
-    std::vector<std::string> split;
-
-    for (std::string s; std::getline(iss, s, '/');)
-      split.push_back(s);
-
-    std::vector<const char*> c_strs;
-    for (auto item = split.begin(); item != split.end(); item++) {
-      c_strs.push_back((*item).c_str());
-    }
-
-    struct File my_file = read_file(root, &c_strs[0], c_strs.size() - 1);
+    RFS::File my_file = RFS::read_file_p(root, path.c_str());
 
     if (my_file.data) {
       std::cout << "File found. Size: " << my_file.size << std::endl;
-      std::cout << std::string(my_file.data, my_file.size) << std::endl;
+      // std::cout << std::string(my_file.data, my_file.size) << std::endl;
     } else {
       std::cout << "File not found." << std::endl;
     }
