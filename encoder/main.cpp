@@ -13,7 +13,7 @@
 const char Error_NoFolder[] = "Error, please provide a valid folder";
 const char Error_NoFile[] = "Error, please provide an output file";
 
-typedef std::pair<struct RFS::Entry*, int> EntryP;
+typedef std::pair<RFS::Entry*, int> EntryP;
 namespace fs = std::filesystem;
 
 EntryP get_entry(fs::path file_path) {
@@ -53,8 +53,7 @@ EntryP get_entry(fs::path file_path) {
     total_size += entry.second;
   }
 
-  struct RFS::Entry* this_entry =
-      (struct RFS::Entry*)::operator new(total_size);
+  RFS::Entry* this_entry = (RFS::Entry*)::operator new(total_size);
   this_entry->dirs = dirs;
   this_entry->dlen = dlen;
   this_entry->files = files;
@@ -76,8 +75,8 @@ EntryP get_entry(fs::path file_path) {
     auto name = file.path().filename().string();
     auto subdir_entry = d_entries[folder_i++];
 
-    this_entry->names[name_i].length = name.length();
-    this_entry->names[name_i++].offset = folder_curoff;
+    ((RFS::NameEntry*)this_entry->names)[name_i].length = name.length();
+    ((RFS::NameEntry*)this_entry->names)[name_i++].offset = folder_curoff;
 
     std::copy(name.begin(), name.end(), name_ptr);
     name_ptr += name.size();
@@ -95,8 +94,8 @@ EntryP get_entry(fs::path file_path) {
     auto name = file.path().filename().string();
     auto size = std::filesystem::file_size(file);
 
-    this_entry->names[name_i].length = name.length();
-    this_entry->names[name_i++].offset = size;
+    ((RFS::NameEntry*)this_entry->names)[name_i].length = name.length();
+    ((RFS::NameEntry*)this_entry->names)[name_i++].offset = size;
 
     std::copy(name.begin(), name.end(), name_ptr);
     name_ptr += name.size();

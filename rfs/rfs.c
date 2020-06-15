@@ -3,12 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct FileName get_file_info(struct Entry* entry, uint8_t number) {
+struct FileName get_file_info(const struct Entry* entry, uint8_t number) {
   if (number >= entry->files)
     return (struct FileName){};
 
-  struct NameEntry* names = entry->names + entry->dirs;
-  char* n_ptr = (char*)(names + entry->files) + entry->dlen;
+  const struct NameEntry* names = entry->names + entry->dirs;
+  const char* n_ptr = (char*)(names + entry->files) + entry->dlen;
 
   for (uint32_t i = 0; i < number; i++)
     n_ptr += names[i].length;
@@ -16,26 +16,29 @@ struct FileName get_file_info(struct Entry* entry, uint8_t number) {
   return (struct FileName){.size = names[number].length, .name = n_ptr};
 }
 
-struct Folder get_folder_info(struct Entry* entry, uint8_t number) {
+struct Folder get_folder_info(const struct Entry* entry, uint8_t number) {
   if (number >= entry->dirs)
     return (struct Folder){};
 
-  struct NameEntry* names = entry->names;
-  char* n_ptr = (char*)(names + entry->dirs + entry->files);
+  const struct NameEntry* names = entry->names;
+  const char* n_ptr = (char*)(names + entry->dirs + entry->files);
 
   for (uint32_t i = 0; i < number; i++)
     n_ptr += names[i].length;
 
   return (struct Folder){
       .name = (struct FileName){.size = names[number].length, .name = n_ptr},
-      .entry = (struct Entry*)((uint8_t*)entry + names[number].offset * 4)};
+      .entry =
+          (const struct Entry*)((uint8_t*)entry + names[number].offset * 4)};
 }
 
-struct File read_file(struct Entry* entry, const char** path, uint16_t depth) {
-  struct NameEntry* names = entry->names;
+struct File read_file(const struct Entry* entry,
+                      const char** path,
+                      uint16_t depth) {
+  const struct NameEntry* names = entry->names;
   uint8_t max = entry->dirs;
   uint8_t nlen = strlen(path[0]);
-  char* n_ptr = (char*)(names + entry->dirs + entry->files);
+  const char* n_ptr = (const char*)(names + entry->dirs + entry->files);
   uint32_t offset = sizeof(struct Entry) +
                     sizeof(struct NameEntry) * (entry->dirs + entry->files) +
                     entry->dlen + entry->flen;
@@ -62,14 +65,15 @@ found:
 
   if (depth == 0) {
     return (struct File){.size = this,
-                         .data = (char*)((uint8_t*)entry + offset)};
+                         .data = (const char*)((uint8_t*)entry + offset)};
   } else {
-    struct Entry* subdir = (struct Entry*)((uint8_t*)entry + this * 4);
+    const struct Entry* subdir =
+        (const struct Entry*)((uint8_t*)entry + this * 4);
     return read_file(subdir, path + 1, depth - 1);
   }
 }
 
-struct File read_file_p(struct Entry* entry, const char* path) {
+struct File read_file_p(const struct Entry* entry, const char* path) {
   uint32_t path_len = 0;
   uint32_t text_len = strlen(path);
 
@@ -92,15 +96,16 @@ struct File read_file_p(struct Entry* entry, const char* path) {
   return ret;
 }
 
-uint32_t file_count(struct Entry* entry) {
+uint32_t file_count(const struct Entry* entry) {
   uint32_t retval = 0;
-  struct NameEntry* names = entry->names;
+  const struct NameEntry* names = entry->names;
   uint32_t offset = sizeof(struct Entry) +
                     sizeof(struct NameEntry) * (entry->dirs + entry->files) +
                     entry->dlen + entry->flen;
 
   for (uint8_t i = 0; i < entry->dirs; i++) {
-    retval += file_count((struct Entry*)((uint8_t*)entry + names->offset * 4));
+    retval +=
+        file_count((const struct Entry*)((uint8_t*)entry + names->offset * 4));
     offset += names->offset;
     names++;
   }

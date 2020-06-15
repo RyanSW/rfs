@@ -10,7 +10,7 @@
 extern RFS::Entry _binary_entries_start;
 RFS::Entry* root = &_binary_entries_start;
 
-void print_tree(RFS::Entry* entry, int depth = 0) {
+void print_tree(const RFS::Entry* entry, int depth = 0) {
   for (int i = 0; i < entry->files; i++) {
     std::cout << std::string(depth, ' ') << "- ";
     RFS::FileName file = RFS::get_file_info(entry, i);
