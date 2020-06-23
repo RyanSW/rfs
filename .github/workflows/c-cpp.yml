@@ -1,0 +1,21 @@
+name: CI Testing
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    container: 
+      image: './.devcontainer/Dockerfile'
+      volumes: [local]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: cmake
+      run: cmake
+      
