@@ -9,7 +9,7 @@ add_library(RFS STATIC rfs/rfs.c)
 
 project(Encoder)
 add_executable(Encoder encoder/main.cpp)
-target_link_libraries(Encoder RFS)
+target_link_libraries(Encoder RFS -static-libstdc++)
 
 project(Browser)
 add_custom_command(
